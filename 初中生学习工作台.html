@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#F4F7F1">
+<title>初中生学习工作台</title>
+<!-- TailwindCSS（CDN，联网时增强；断网时下方内嵌 CSS 仍可正常使用） -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  window.tailwind && (tailwind.config = { theme: { extend: { colors: {
+    ink:'#4A5240', ink2:'#7C8A70', bg:'#F4F7F1', card:'#FBFCF8',
+    sage:'#7C9A72', sageSoft:'#E7EFE1', sand:'#D8B18A', sky:'#8FA9B8',
+    rose:'#C99A9A', line:'#E2E8DA'
+  }}}});
+</script>
+<style>
+:root{
+  --bg:#F4F7F1; --card:#FBFCF8; --ink:#4A5240; --ink2:#7C8A70;
+  --sage:#7C9A72; --sage-d:#66865E; --sage-soft:#E7EFE1;
+  --sand:#D8B18A; --sky:#8FA9B8; --rose:#C99A9A; --line:#E2E8DA;
+  --shadow:0 4px 16px rgba(90,110,80,.08); --r:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  background:var(--bg); color:var(--ink); font-size:16px; line-height:1.6;
+  padding-bottom:calc(78px + env(safe-area-inset-bottom));
+}
+.wrap{max-width:640px;margin:0 auto;padding:0 14px}
+.appbar{position:sticky;top:0;z-index:30;background:rgba(244,247,241,.92);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top)) 0 10px}
+.appbar-in{max-width:640px;margin:0 auto;padding:0 14px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:18px;letter-spacing:.5px}
+.logo .em{width:34px;height:34px;border-radius:11px;background:var(--sage-soft);display:grid;place-items:center;font-size:19px}
+.pts{display:flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--line);border-radius:999px;
+  padding:6px 13px;font-weight:700;color:var(--sage-d);box-shadow:var(--shadow)}
+.views{padding-top:14px}
+.view{display:none;animation:fade .25s ease}.view.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+.card h2,.card h3{margin:0 0 12px;font-size:16px;display:flex;align-items:center;gap:8px}
+.muted{color:var(--ink2);font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.stat .v{font-size:27px;font-weight:800;line-height:1.2}
+.stat .l{font-size:12px;color:var(--ink2);margin-top:3px}
+.stat .i{position:absolute;right:12px;top:12px;font-size:20px;opacity:.85}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:46px;padding:0 18px;
+  border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--sage);color:#fff;box-shadow:0 4px 12px rgba(124,154,114,.35)}
+.btn-g{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn-s{background:var(--sage-soft);color:var(--sage-d)}
+.btn-d{background:#FBECEC;color:#B46363}
+.btn-sm{min-height:36px;padding:0 12px;font-size:13px;border-radius:10px}
+.btn-block{width:100%}
+.row{display:flex;gap:9px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:999px;font-size:13px;
+  background:#fff;border:1px solid var(--line);cursor:pointer;color:var(--ink2);white-space:nowrap}
+.chip.on{background:var(--sage);color:#fff;border-color:var(--sage)}
+.tag{display:inline-block;padding:3px 9px;border-radius:8px;font-size:12px;font-weight:600;background:var(--sage-soft);color:var(--sage-d)}
+.tag.sand{background:#F7EEE3;color:#A97745}.tag.sky{background:#E8F0F4;color:#5F8398}
+.tag.rose{background:#F7EAEA;color:#B46363}.tag.gray{background:#EEEFE9;color:#7E8876}
+input,select,textarea{font-family:inherit;font-size:15px;color:var(--ink);background:#fff;
+  border:1px solid var(--line);border-radius:12px;padding:11px 12px;width:100%;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--sage);box-shadow:0 0 0 3px var(--sage-soft)}
+label.f{display:block;font-size:13px;color:var(--ink2);margin:0 0 6px;font-weight:600}
+.field{margin-bottom:12px}
+.task{display:flex;align-items:center;gap:11px;padding:12px 4px;border-bottom:1px dashed var(--line)}
+.task:last-child{border-bottom:none}
+.cb{width:24px;height:24px;border-radius:8px;border:2px solid var(--sage);flex:0 0 auto;display:grid;place-items:center;cursor:pointer;background:#fff}
+.cb.done{background:var(--sage);color:#fff}
+.task .tx{flex:1;min-width:0}.task .tx.done{text-decoration:line-through;color:var(--ink2)}
+.x{color:#B9C1B0;font-size:20px;padding:0 6px;cursor:pointer}
+.prog{height:9px;background:var(--sage-soft);border-radius:99px;overflow:hidden;margin-top:9px}
+.prog>i{display:block;height:100%;background:var(--sage);border-radius:99px;transition:.4s}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(251,252,248,.97);backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom))}
+.nav-in{max-width:640px;margin:0 auto;display:flex;justify-content:space-around}
+.nav button{flex:1;background:none;border:none;color:var(--ink2);font-size:11px;display:flex;flex-direction:column;
+  align-items:center;gap:3px;padding:5px 0;cursor:pointer;font-family:inherit;font-weight:600}
+.nav button .ic{font-size:21px;line-height:1}
+.nav button.on{color:var(--sage-d)}
+.nav button.on .ic{transform:translateY(-1px)}
+.mask{position:fixed;inset:0;background:rgba(60,70,55,.42);z-index:60;display:none;align-items:flex-end;justify-content:center}
+.mask.on{display:flex}
+.sheet{background:var(--card);width:100%;max-width:640px;max-height:92vh;overflow-y:auto;border-radius:22px 22px 0 0;
+  padding:18px 16px calc(24px + env(safe-area-inset-bottom));animation:up .25s ease}
+@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+.sheet .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sheet .hd h3{margin:0;font-size:18px}
+.close{width:34px;height:34px;border-radius:50%;background:var(--sage-soft);border:none;color:var(--ink);font-size:20px;cursor:pointer}
+.sec{border-left:3px solid var(--sage);padding-left:10px;margin:14px 0 6px;font-weight:700;font-size:14px}
+.step{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2);margin:6px 0}
+.step .dot{width:9px;height:9px;border-radius:50%;background:#CDD6C7}
+.step .dot.act{background:var(--sand);animation:pulse 1s infinite}
+.step .dot.ok{background:var(--sage)}
+@keyframes pulse{50%{opacity:.35}}
+.preview{width:100%;max-height:230px;object-fit:contain;border-radius:14px;background:var(--sage-soft);margin:8px 0}
+.mini{font-size:12px;color:var(--ink2)}
+.bar{height:22px;border-radius:7px;background:var(--sage-soft);overflow:hidden;position:relative}
+.bar>i{display:block;height:100%;background:var(--sage);border-radius:7px}
+.bar span{position:absolute;right:7px;top:0;font-size:12px;line-height:22px;color:var(--ink)}
+.chart{display:flex;align-items:flex-end;gap:6px;height:120px;padding-top:8px}
+.chart .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.chart .col .bx{width:100%;max-width:26px;background:var(--sage);border-radius:6px 6px 0 0;min-height:2px;transition:.4s}
+.chart .col .lb{font-size:10px;color:var(--ink2)}
+.empty{text-align:center;padding:26px 10px;color:var(--ink2)}
+.empty .e{font-size:38px;display:block;margin-bottom:8px;opacity:.6}
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;
+  padding:11px 20px;border-radius:12px;font-size:14px;z-index:90;opacity:0;pointer-events:none;transition:.25s;max-width:88%;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.ans{background:var(--sage-soft);border-radius:10px;padding:9px 11px;margin-top:6px;font-size:14px;display:none}
+.ans.on{display:block}
+.timer{font-size:52px;font-weight:800;text-align:center;letter-spacing:2px;color:var(--sage-d);margin:8px 0}
+details summary{cursor:pointer;font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <div class="appbar-in">
+    <div class="logo"><span class="em">🌿</span><span>学习工作台</span></div>
+    <div class="pts">⭐ <span id="pts">0</span></div>
+  </div>
+</div>
+
+<div class="wrap views">
+
+  <!-- ============ 首页 ============ -->
+  <section class="view on" id="v-home">
+    <div class="card" style="background:linear-gradient(135deg,#E7EFE1,#F7F3EA)">
+      <h2 style="margin-bottom:4px">👋 <span id="greet">同学，加油！</span></h2>
+      <div class="muted" id="todayLine">今天也要元气满满地学习呀～</div>
+    </div>
+    <div class="grid2">
+      <div class="stat"><span class="i">✅</span><div class="v" id="s-task">0/0</div><div class="l">今日任务完成</div></div>
+      <div class="stat"><span class="i">🍅</span><div class="v" id="s-focus">0</div><div class="l">今日专注（分钟）</div></div>
+      <div class="stat"><span class="i">📕</span><div class="v" id="s-mis">0</div><div class="l">错题待复习</div></div>
+      <div class="stat"><span class="i">📖</span><div class="v" id="s-rec">0</div><div class="l">背诵到期提醒</div></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h2>⚡ 快捷开始</h2>
+      <div class="row">
+        <button class="btn btn-p" data-go="mistakes">📷 拍照录入错题</button>
+        <button class="btn btn-g" data-go="plan">📋 写今日计划</button>
+        <button class="btn btn-g" id="quickPomo">🍅 开始专注</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>📌 今日待办 <span class="muted" id="dueSub"></span></h2>
+      <div id="homeDue"></div>
+    </div>
+  </section>
+
+  <!-- ============ 每日计划 ============ -->
+  <section class="view" id="v-plan">
+    <div class="card">
+      <h2>📋 每日计划 <span class="muted" id="planDate"></span></h2>
+      <div class="row" style="margin-bottom:12px" id="subChips"></div>
+      <div class="row">
+        <input id="taskInput" placeholder="例如：数学练习册 P12 第1-8题" style="flex:1;min-width:180px">
+        <button class="btn btn-p" id="addTask">添加</button>
+      </div>
+      <div class="prog"><i id="planProg" style="width:0%"></i></div>
+      <div class="mini" id="planProgTx" style="margin-top:5px">完成 0 / 0</div>
+    </div>
+    <div class="card">
+      <h2>📝 任务列表</h2>
+      <div id="taskList"></div>
+    </div>
+  </section>
+
+  <!-- ============ 智能错题本 ============ -->
+  <section class="view" id="v-mistakes">
+    <div class="card">
+      <h2>📕 智能错题本</h2>
+      <div class="row">
+        <button class="btn btn-p" id="btnPhoto">📷 拍照录入错题</button>
+        <button class="btn btn-g" id="btnManual">✍️ 手动录入</button>
+      </div>
+      <div class="mini" style="margin-top:8px">拍照 → OCR 识别 → AI 解析成固定结构 → 确认保存</div>
+    </div>
+    <div class="card">
+      <h2>🔍 筛选</h2>
+      <div class="row" style="margin-bottom:8px" id="fSub"></div>
+      <div class="row" style="margin-bottom:8px" id="fType"></div>
+      <input id="fKw" placeholder="搜索知识点 / 题目关键词">
+    </div>
+    <div id="mistakeList"></div>
+  </section>
+
+  <!-- ============ 背诵打卡 ============ -->
+  <section class="view" id="v-recite">
+    <div class="card">
+      <h2>📖 背诵打卡（艾宾浩斯）</h2>
+      <div class="field"><input id="recTitle" placeholder="例如：古诗《春望》/ unit3 单词"></div>
+      <div class="row">
+        <select id="recSub" style="flex:1"><option>语文</option><option>数学</option><option>英语</option><option>物理</option></select>
+        <button class="btn btn-p" id="addRec">加入计划</button>
+      </div>
+      <div class="mini" style="margin-top:8px">复习节奏：1 → 2 → 4 → 7 → 15 → 30 → 60 天</div>
+    </div>
+    <div id="reciteList"></div>
+  </section>
+
+  <!-- ============ 统计复盘 ============ -->
+  <section class="view" id="v-stats">
+    <div class="card">
+      <h2>📊 近 7 天专注时长</h2>
+      <div class="chart" id="focusChart"></div>
+      <div class="mini" style="text-align:center;margin-top:6px" id="focusTotal"></div>
+    </div>
+    <div class="card">
+      <h2>🔎 错题错因分布</h2>
+      <div id="typeStat"></div>
+    </div>
+    <div class="card">
+      <h2>🎯 薄弱知识点 TOP5</h2>
+      <div id="kpStat"></div>
+    </div>
+    <div class="card" style="background:linear-gradient(135deg,#E7EFE1,#F4F7F1)">
+      <h2>💡 本周改进建议</h2>
+      <div id="advice"></div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ 底部导航 ============ -->
+<nav class="nav"><div class="nav-in">
+  <button class="on" data-v="home"><span class="ic">🏠</span>首页</button>
+  <button data-v="plan"><span class="ic">📋</span>计划</button>
+  <button data-v="mistakes"><span class="ic">📕</span>错题本</button>
+  <button data-v="recite"><span class="ic">📖</span>背诵</button>
+  <button data-v="stats"><span class="ic">📊</span>统计</button>
+</div></nav>
+
+<!-- ============ 拍照识别 / 解析确认 ============ -->
+<div class="mask" id="m-capture"><div class="sheet">
+  <div class="hd"><h3>📷 拍照录入错题</h3><button class="close" data-close>✕</button></div>
+  <input type="file" id="photoInput" accept="image/*" capture="environment" hidden>
+  <div id="captureBody">
+    <div class="row">
+      <button class="btn btn-p" id="takePhoto">📸 调用摄像头拍照</button>
+      <button class="btn btn-g" id="choosePhoto">🖼️ 从相册选</button>
+    </div>
+    <p class="mini" style="margin-top:10px">手机会打开摄像头，对准试卷题目拍照即可。也可从相册选择已有照片。</p>
+  </div>
+  <div id="parseBox" style="display:none">
+    <img id="photoPreview" class="preview" alt="试卷预览">
+    <div class="step"><span class="dot" id="d1"></span><span id="t1">① 读取照片</span></div>
+    <div class="step"><span class="dot" id="d2"></span><span id="t2">② OCR 识别试卷文字 / 手写答案</span></div>
+    <div class="step"><span class="dot" id="d3"></span><span id="t3">③ AI 解析为结构化错题</span></div>
+    <div id="ocrText" class="mini" style="background:#fff;border-radius:10px;padding:10px;margin:10px 0;max-height:90px;overflow:auto;display:none"></div>
+    <button class="btn btn-p btn-block" id="doParse">🚀 开始识别并解析</button>
+  </div>
+  <div id="reviewBox" style="display:none">
+    <div class="sec">解析结果（可修改后保存）</div>
+    <div class="field"><label class="f">科目</label><select id="r-subject"><option>数学</option><option>语文</option><option>英语</option><option>物理</option></select></div>
+    <div class="field"><label class="f">【原题】</label><textarea id="r-question" rows="3"></textarea></div>
+    <div class="field"><label class="f">【学生作答】</label><textarea id="r-student" rows="2"></textarea></div>
+    <div class="field"><label class="f">【参考答案】</label><textarea id="r-ref" rows="3"></textarea></div>
+    <div class="field"><label class="f">【涉及知识点】</label><input id="r-kp" placeholder="如：一元一次方程移项"></div>
+    <div class="field"><label class="f">【错误原因分析】</label><select id="r-type">
+      <option>概念不清</option><option>计算粗心</option><option>审题漏条件</option><option>步骤不规范</option><option>不会审题</option></select></div>
+    <div class="field"><label class="f">【学习建议】</label><textarea id="r-sug" rows="2"></textarea></div>
+    <div class="field"><label class="f">【举一反三练习题】（每行一题，用 || 分隔答案）</label><textarea id="r-practice" rows="4" placeholder="题目1 || 答案1&#10;题目2 || 答案2"></textarea></div>
+    <div class="row">
+      <button class="btn btn-p" id="saveMistake" style="flex:1">✅ 保存到错题本</button>
+      <button class="btn btn-g" id="cancelCapture">取消</button>
+    </div>
+  </div>
+</div></div>
+
+<!-- ============ 手动录入 ============ -->
+<div class="mask" id="m-manual"><div class="sheet">
+  <div class="hd"><h3>✍️ 手动录入错题</h3><button class="close" data-close>✕</button></div>
+  <div class="field"><label class="f">科目</label><select id="m-subject"><option>数学</option><option>语文</option><option>英语</option><option>物理</option></select></div>
+  <div class="field"><label class="f">原题</label><textarea id="m-question" rows="3"></textarea></div>
+  <div class="field"><label class="f">学生作答</label><textarea id="m-student" rows="2"></textarea></div>
+  <div class="field"><label class="f">参考答案</label><textarea id="m-ref" rows="3"></textarea></div>
+  <div class="field"><label class="f">知识点</label><input id="m-kp"></div>
+  <div class="field"><label class="f">错因</label><select id="m-type"><option>概念不清</option><option>计算粗心</option><option>审题漏条件</option><option>步骤不规范</option><option>不会审题</option></select></div>
+  <div class="field"><label class="f">学习建议</label><textarea id="m-sug" rows="2"></textarea></div>
+  <div class="field"><label class="f">举一反三（每行一题，|| 分隔答案）</label><textarea id="m-practice" rows="3"></textarea></div>
+  <button class="btn btn-p btn-block" id="saveManual">✅ 保存</button>
+</div></div>
+
+<!-- ============ 错题详情 ============ -->
+<div class="mask" id="m-detail"><div class="sheet">
+  <div class="hd"><h3>📕 错题详情</h3><button class="close" data-close>✕</button></div>
+  <div id="detailBody"></div>
+</div></div>
+
+<!-- ============ 番茄钟 ============ -->
+<div class="mask" id="m-pomo"><div class="sheet">
+  <div class="hd"><h3>🍅 番茄专注</h3><button class="close" data-close>✕</button></div>
+  <div class="timer" id="timerTx">25:00</div>
+  <div class="mini" style="text-align:center;margin-bottom:12px">专注 25 分钟，完成后 +10 ⭐</div>
+  <div class="row">
+    <button class="btn btn-p" id="pomoStart" style="flex:1">▶ 开始</button>
+    <button class="btn btn-g" id="pomoReset">↺ 重置</button>
+    <button class="btn btn-s" id="pomoFinish">结束并记录</button>
+  </div>
+</div></div>
+
+<!-- ============ 设置 / 云同步 ============ -->
+<div class="mask" id="m-set"><div class="sheet">
+  <div class="hd"><h3>⚙️ 识别 / 云同步设置</h3><button class="close" data-close>✕</button></div>
+  <div class="sec">OCR 识别方式</div>
+  <div class="field"><select id="setOcr">
+    <option value="demo">演示模式（无需后端，生成示例解析）</option>
+    <option value="custom">自定义 HTTP 接口</option>
+    <option value="cloudbase">CloudBase 云函数</option>
+  </select></div>
+  <div class="field"><label class="f">OCR 接口地址（custom 模式）</label><input id="setOcrUrl" placeholder="https://.../ocr"></div>
+  <div class="sec">AI 解析方式</div>
+  <div class="field"><select id="setAi">
+    <option value="demo">演示模式（本地结构化解析）</option>
+    <option value="custom">自定义 HTTP 接口</option>
+    <option value="cloudbase">CloudBase 云函数</option>
+  </select></div>
+  <div class="field"><label class="f">AI 接口地址（custom 模式）</label><input id="setAiUrl" placeholder="https://.../parse"></div>
+  <div class="sec">CloudBase 云同步</div>
+  <div class="field"><label class="f">环境 ID（env）</label><input id="setEnv" placeholder="your-env-xxx"></div>
+  <div class="row">
+    <button class="btn btn-g" id="syncUp" style="flex:1">⬆ 上传备份</button>
+    <button class="btn btn-g" id="syncDown" style="flex:1">⬇ 下载恢复</button>
+  </div>
+  <div class="field" style="margin-top:12px"><label class="f"><input type="checkbox" id="setAuto" style="width:auto;margin-right:6px">每次修改后自动上传到云端</label></div>
+  <div class="mini" style="margin-top:10px">说明：默认演示模式可离线体验完整流程；接入真实 OCR/AI 与云同步需在页面引入 CloudBase SDK 并部署云函数（见交付说明）。</div>
+  <button class="btn btn-p btn-block" id="saveSet" style="margin-top:14px">保存设置</button>
+  <button class="btn btn-d btn-block" id="clearData" style="margin-top:8px">清空所有本地数据</button>
+</div></div>
+
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   初中生学习工作台 · 单文件应用
+   存储：localStorage（主） / CloudBase（预留同步接口）
+   ============================================================ */
+'use strict';
+
+const SUBJECTS = ['语文','数学','英语','物理'];
+const TYPES = ['概念不清','计算粗心','审题漏条件','步骤不规范','不会审题'];
+const EBB = [1,2,4,7,15,30,60]; // 艾宾浩斯间隔（天）
+const KEY = 'studyWorkbench_v1';
+
+const DEFAULT = {
+  points:0, tasks:[], pomodoros:[], mistakes:[], recites:[], reciteDone:{},
+  settings:{ ocr:'demo', ai:'demo', ocrUrl:'', aiUrl:'', env:'', auto:false }
+};
+let state = load();
+let filter = { subject:'全部', type:'全部', kw:'' };
+let editingId = null;
+let pomo = { left:25*60, base:25*60, timer:null, running:false, startAt:0 };
+let pendingImage = null; // {base64, name}
+
+/* ---------- 基础工具 ---------- */
+function clone(o){return JSON.parse(JSON.stringify(o));}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function p2(n){return String(n).padStart(2,'0');}
+function todayStr(d=new Date()){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
+function addDays(dateStr,n){const d=new Date(dateStr+'T00:00:00');d.setDate(d.getDate()+n);return todayStr(d);}
+function load(){
+  try{const s=JSON.parse(localStorage.getItem(KEY));if(!s)return clone(DEFAULT);
+    // 补齐缺字段
+    return Object.assign(clone(DEFAULT),s,{settings:Object.assign(clone(DEFAULT.settings),s.settings||{})});
+  }catch(e){return clone(DEFAULT);}
+}
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(state));
+  if(state.settings.auto && state.settings.env) cloudSync('up',true);
+}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2200);}
+function award(n,why){state.points+=n;save();renderPoints();if(why)toast(`${why} +${n}⭐`);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function parsePractice(text){
+  return String(text||'').split('\n').map(x=>x.trim()).filter(Boolean).map(line=>{
+    const [q,a]=line.split(/\s*\|\|\s*/);return {q:q||'',a:a||''};
+  });
+}
+function practiceToText(arr){return (arr||[]).map(p=>p.q+(p.a?' || '+p.a:'')).join('\n');}
+function due(list){const t=todayStr();return list.filter(x=>!x.mastered && x.nextReview && x.nextReview<=t).length;}
+
+/* ---------- 视图切换 ---------- */
+function go(v){
+  document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  window.scrollTo({top:0,behavior:'smooth'});
+  render();
+}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+
+/* ---------- 弹窗 ---------- */
+function openM(id){document.getElementById(id).classList.add('on');}
+function closeM(id){document.getElementById(id).classList.remove('on');}
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeM(b.closest('.mask').id));
+document.querySelectorAll('.mask').forEach(m=>m.onclick=e=>{if(e.target===m)closeM(m.id);});
+
+/* ============================================================
+   首页
+   ============================================================ */
+function renderHome(){
+  const t=todayStr();
+  const dayTasks=state.tasks.filter(x=>x.date===t);
+  const done=dayTasks.filter(x=>x.done).length;
+  document.getElementById('greet').textContent=`${new Date().getHours()<12?'早上好':new Date().getHours()<18?'下午好':'晚上好'}，同学！`;
+  document.getElementById('todayLine').textContent=t+' · 今天也要元气满满地学习呀～';
+  document.getElementById('s-task').textContent=done+'/'+dayTasks.length;
+  document.getElementById('s-focus').textContent=state.pomodoros.filter(x=>x.date===t).reduce((a,b)=>a+b.minutes,0);
+  document.getElementById('s-mis').textContent=due(state.mistakes);
+  document.getElementById('s-rec').textContent=due(state.recites);
+  const items=[
+    ...state.mistakes.filter(x=>!x.mastered&&x.nextReview<=t).map(x=>({k:'错题',txt:x.question,sub:x.subject,id:x.id,type:'mis'})),
+    ...state.recites.filter(x=>!x.mastered&&x.nextReview<=t).map(x=>({k:'背诵',txt:x.title,sub:x.subject,id:x.id,type:'rec'}))
+  ];
+  document.getElementById('dueSub').textContent=items.length?`（${items.length} 项）`:'';
+  const box=document.getElementById('homeDue');
+  box.innerHTML=items.length?items.slice(0,6).map(i=>`
+    <div class="task"><span class="tag ${i.type==='mis'?'rose':'sand'}">${i.k}</span>
+      <span class="tx">${esc(i.txt).slice(0,28)}${i.txt.length>28?'…':''}</span>
+      <button class="btn btn-s btn-sm" data-done="${i.type}:${i.id}">完成</button></div>`).join('')
+    :`<div class="empty"><span class="e">🌱</span>暂无到期任务，继续保持！</div>`;
+  box.querySelectorAll('[data-done]').forEach(b=>b.onclick=()=>{
+    const [type,id]=b.dataset.done.split(':');reviewDone(type,id);
+  });
+}
+
+/* ============================================================
+   每日计划
+   ============================================================ */
+let curSub='全部';
+function renderPlan(){
+  const t=todayStr();
+  document.getElementById('planDate').textContent=t;
+  const chips=document.getElementById('subChips');
+  ['全部',...SUBJECTS].forEach(s=>{
+    const b=document.createElement('button');
+    b.className='chip'+(curSub===s?' on':'');b.textContent=s;
+    b.onclick=()=>{curSub=s;renderPlan();};chips.appendChild(b);
+  });
+  const list=state.tasks.filter(x=>x.date===t&&(curSub==='全部'||x.subject===curSub));
+  const box=document.getElementById('taskList');
+  box.innerHTML=list.length?list.map(x=>`
+    <div class="task">
+      <div class="cb ${x.done?'done':''}" data-tg="${x.id}">${x.done?'✓':''}</div>
+      <div class="tx ${x.done?'done':''}"><span class="tag ${subColor(x.subject)}">${x.subject}</span> ${esc(x.text)}</div>
+      <span class="x" data-del="${x.id}">×</span>
+    </div>`).join(''):`<div class="empty"><span class="e">📝</span>还没有任务，添加一条吧～</div>`;
+  box.querySelectorAll('[data-tg]').forEach(e=>e.onclick=()=>{
+    const task=state.tasks.find(x=>x.id===e.dataset.tg);task.done=!task.done;
+    if(task.done)award(5,'完成任务');else save();render();
+  });
+  box.querySelectorAll('[data-del]').forEach(e=>e.onclick=()=>{
+    state.tasks=state.tasks.filter(x=>x.id!==e.dataset.del);save();render();
+  });
+  const all=state.tasks.filter(x=>x.date===t), dn=all.filter(x=>x.done).length;
+  document.getElementById('planProg').style.width=(all.length?dn/all.length*100:0)+'%';
+  document.getElementById('planProgTx').textContent=`完成 ${dn} / ${all.length}`;
+}
+function subColor(s){return {'语文':'rose','数学':'sky','英语':'','物理':'sand'}[s]||'';}
+document.getElementById('addTask').onclick=()=>{
+  const inp=document.getElementById('taskInput'),v=inp.value.trim();
+  if(!v)return toast('请输入任务内容');
+  const sub=curSub!=='全部'?curSub:'数学';
+  state.tasks.push({id:uid(),date:todayStr(),subject:sub,text:v,done:false});
+  inp.value='';save();render();toast('已添加任务');
+};
+document.getElementById('taskInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('addTask').click();});
+
+/* ============================================================
+   智能错题本
+   ============================================================ */
+function renderFilters(){
+  const fs=document.getElementById('fSub'),ft=document.getElementById('fType');fs.innerHTML='';ft.innerHTML='';
+  ['全部',...SUBJECTS].forEach(s=>{const b=document.createElement('button');
+    b.className='chip'+(filter.subject===s?' on':'');b.textContent=s;
+    b.onclick=()=>{filter.subject=s;render();};fs.appendChild(b);});
+  ['全部',...TYPES].forEach(s=>{const b=document.createElement('button');
+    b.className='chip'+(filter.type===s?' on':'');b.textContent=s;
+    b.onclick=()=>{filter.type=s;render();};ft.appendChild(b);});
+}
+document.getElementById('fKw').addEventListener('input',e=>{filter.kw=e.target.value.trim();renderMistakes();});
+
+function renderMistakes(){
+  renderFilters();
+  let list=state.mistakes.filter(m=>
+    (filter.subject==='全部'||m.subject===filter.subject)&&
+    (filter.type==='全部'||m.type===filter.type)&&
+    (!filter.kw||(m.question+m.knowledge+m.student).includes(filter.kw))
+  ).sort((a,b)=>(a.mastered-b.mastered)||((a.nextReview||'9')<(b.nextReview||'9')?-1:1));
+  const box=document.getElementById('mistakeList');
+  box.innerHTML=list.length?list.map(m=>{
+    const isDue=!m.mastered&&m.nextReview<=todayStr();
+    return `<div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div class="row"><span class="tag ${subColor(m.subject)}">${m.subject}</span>
+          <span class="tag ${m.type==='概念不清'?'rose':m.type==='计算粗心'?'sand':'gray'}">${esc(m.type)}</span>
+          ${m.mastered?'<span class="tag">✅ 已掌握</span>':isDue?'<span class="tag rose">待复习</span>':''}</div>
+        <span class="mini">${m.date}</span>
+      </div>
+      <div style="margin:9px 0;font-weight:600">${esc(m.question).slice(0,60)}${m.question.length>60?'…':''}</div>
+      <div class="mini">知识点：${esc(m.knowledge||'未标注')} · 下次复习：${m.mastered?'—':m.nextReview}</div>
+      <div class="row" style="margin-top:11px">
+        <button class="btn btn-s btn-sm" data-detail="${m.id}">查看详情</button>
+        ${!m.mastered?`<button class="btn btn-p btn-sm" data-rev="${m.id}">复习完成</button>
+        <button class="btn btn-g btn-sm" data-master="${m.id}">✅ 已掌握</button>`:''}
+        <button class="btn btn-g btn-sm" data-edit="${m.id}">编辑</button>
+        <button class="btn btn-d btn-sm" data-delM="${m.id}">删除</button>
+      </div></div>`;
+  }).join(''):`<div class="card"><div class="empty"><span class="e">📕</span>暂无错题，拍照记录第一道吧！</div></div>`;
+  box.querySelectorAll('[data-detail]').forEach(b=>b.onclick=()=>showDetail(b.dataset.detail));
+  box.querySelectorAll('[data-rev]').forEach(b=>b.onclick=()=>reviewDone('mis',b.dataset.rev));
+  box.querySelectorAll('[data-master]').forEach(b=>b.onclick=()=>{
+    const m=state.mistakes.find(x=>x.id===b.dataset.master);m.mastered=true;save();render();toast('已标记掌握，不再重复复习');
+  });
+  box.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editMistake(b.dataset.edit));
+  box.querySelectorAll('[data-delM]').forEach(b=>b.onclick=()=>{
+    if(!confirm('确定删除这道错题？'))return;
+    state.mistakes=state.mistakes.filter(x=>x.id!==b.dataset.delM);save();render();
+  });
+}
+function showDetail(id){
+  const m=state.mistakes.find(x=>x.id===id);if(!m)return;
+  document.getElementById('detailBody').innerHTML=`
+    ${m.image?`<img src="${m.image}" class="preview" alt="原题照片">`:''}
+    <div class="row" style="margin-bottom:10px"><span class="tag ${subColor(m.subject)}">${m.subject}</span>
+      <span class="tag rose">${esc(m.type)}</span><span class="mini">${m.date}</span></div>
+    <div class="sec">【原题】</div><div>${esc(m.question)}</div>
+    <div class="sec">【学生作答】</div><div>${esc(m.student||'—')}</div>
+    <div class="sec">【参考答案】</div><div>${esc(m.ref)}</div>
+    <div class="sec">【涉及知识点】</div><div><span class="tag">${esc(m.knowledge||'未标注')}</span></div>
+    <div class="sec">【错误原因分析】</div><div>${esc(m.type)}</div>
+    <div class="sec">【学习建议】</div><div>${esc(m.sug||'—')}</div>
+    <div class="sec">【举一反三练习题】</div>
+    ${(m.practice||[]).length?m.practice.map((p,i)=>`<div style="margin-bottom:8px">
+      <div>${i+1}. ${esc(p.q)}</div>
+      <button class="btn btn-s btn-sm" data-ans="${i}" style="margin-top:4px">查看答案</button>
+      <div class="ans" id="ans-${i}">答案：${esc(p.a||'略')}</div></div>`).join(''):'<div class="mini">暂无</div>'}
+    <div class="row" style="margin-top:16px">
+      ${!m.mastered?`<button class="btn btn-p" id="d-rev" style="flex:1">复习完成</button>`:''}
+      <button class="btn btn-g" id="d-close">关闭</button>
+    </div>`;
+  openM('m-detail');
+  document.getElementById('detailBody').querySelectorAll('[data-ans]').forEach(b=>b.onclick=()=>{
+    document.getElementById('ans-'+b.dataset.ans).classList.toggle('on');});
+  document.getElementById('d-close').onclick=()=>closeM('m-detail');
+  const r=document.getElementById('d-rev');if(r)r.onclick=()=>{reviewDone('mis',id);closeM('m-detail');};
+}
+function editMistake(id){
+  const m=state.mistakes.find(x=>x.id===id);editingId=id;
+  document.getElementById('m-subject').value=m.subject;
+  document.getElementById('m-question').value=m.question;
+  document.getElementById('m-student').value=m.student||'';
+  document.getElementById('m-ref').value=m.ref||'';
+  document.getElementById('m-kp').value=m.knowledge||'';
+  document.getElementById('m-type').value=m.type;
+  document.getElementById('m-sug').value=m.sug||'';
+  document.getElementById('m-practice').value=practiceToText(m.practice);
+  document.getElementById('saveManual').textContent='💾 保存修改';
+  openM('m-manual');
+}
+// 手动录入 / 编辑保存
+document.getElementById('btnManual').onclick=()=>{
+  editingId=null;
+  ['m-subject','m-question','m-student','m-ref','m-kp','m-sug','m-practice'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('saveManual').textContent='✅ 保存';
+  openM('m-manual');
+};
+document.getElementById('saveManual').onclick=()=>{
+  const g=id=>document.getElementById(id).value.trim();
+  if(!g('m-question'))return toast('请填写原题');
+  const obj={subject:g('m-subject')||'数学',question:g('m-question'),student:g('m-student'),ref:g('m-ref'),
+    knowledge:g('m-kp'),type:g('m-type'),sug:g('m-sug'),practice:parsePractice(g('m-practice'))};
+  if(editingId){const m=state.mistakes.find(x=>x.id===editingId);Object.assign(m,obj);toast('已保存修改');}
+  else{state.mistakes.push(Object.assign({id:uid(),date:todayStr(),image:null,mastered:false,
+    stage:0,nextReview:todayStr()},obj));award(10,'录入错题');}
+  editingId=null;closeM('m-manual');save();render();
+};
+
+/* ---------- 拍照 → OCR → AI ---------- */
+document.getElementById('btnPhoto').onclick=()=>{
+  pendingImage=null;
+  document.getElementById('captureBody').style.display='';
+  document.getElementById('parseBox').style.display='none';
+  document.getElementById('reviewBox').style.display='none';
+  document.getElementById('doParse').textContent='🚀 开始识别并解析';
+  openM('m-capture');
+};
+document.getElementById('takePhoto').onclick=()=>{
+  const inp=document.getElementById('photoInput');inp.setAttribute('capture','environment');inp.click();};
+document.getElementById('choosePhoto').onclick=()=>{
+  const inp=document.getElementById('photoInput');inp.removeAttribute('capture');inp.click();};
+document.getElementById('photoInput').addEventListener('change',e=>{
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();img.onload=()=>{
+      // 压缩，避免 localStorage 超限
+      const max=1000,scale=Math.min(1,max/Math.max(img.width,img.height));
+      const c=document.createElement('canvas');c.width=img.width*scale;c.height=img.height*scale;
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      pendingImage={base64:c.toDataURL('image/jpeg',0.7),name:file.name};
+      document.getElementById('photoPreview').src=pendingImage.base64;
+      document.getElementById('captureBody').style.display='none';
+      document.getElementById('parseBox').style.display='';
+      setStep(1,'act');setStep(2,'');setStep(3,'');
+    };img.src=ev.target.result;
+  };reader.readAsDataURL(file);
+});
+function setStep(n,cls){document.getElementById('d'+n).className='dot '+(cls||'');}
+document.getElementById('doParse').onclick=async()=>{
+  if(!pendingImage)return toast('请先拍照或选择图片');
+  const btn=document.getElementById('doParse');btn.disabled=true;btn.textContent='识别中…';
+  try{
+    setStep(1,'ok');setStep(2,'act');
+    const ocrText=await callOCR(pendingImage.base64);
+    const ot=document.getElementById('ocrText');ot.style.display='';ot.textContent='OCR 识别：'+ocrText.slice(0,300);
+    setStep(2,'ok');setStep(3,'act');
+    const data=await callAI(ocrText);
+    setStep(3,'ok');
+    fillReview(data);
+    document.getElementById('parseBox').style.display='none';
+    document.getElementById('reviewBox').style.display='';
+  }catch(err){toast('识别失败：'+err.message);console.error(err);}
+  finally{btn.disabled=false;btn.textContent='🚀 重新识别并解析';}
+};
+function fillReview(d){
+  document.getElementById('r-subject').value=d.subject||'数学';
+  document.getElementById('r-question').value=d.question||'';
+  document.getElementById('r-student').value=d.student||'';
+  document.getElementById('r-ref').value=d.ref||'';
+  document.getElementById('r-kp').value=d.knowledge||'';
+  document.getElementById('r-type').value=TYPES.includes(d.type)?d.type:'概念不清';
+  document.getElementById('r-sug').value=d.sug||'';
+  document.getElementById('r-practice').value=practiceToText(d.practice);
+}
+document.getElementById('saveMistake').onclick=()=>{
+  const g=id=>document.getElementById(id).value.trim();
+  if(!g('r-question'))return toast('原题不能为空');
+  state.mistakes.push({id:uid(),date:todayStr(),subject:g('r-subject'),question:g('r-question'),
+    student:g('r-student'),ref:g('r-ref'),knowledge:g('r-kp'),type:g('r-type'),sug:g('r-sug'),
+    practice:parsePractice(g('r-practice')),image:pendingImage?pendingImage.base64:null,
+    mastered:false,stage:0,nextReview:todayStr()});
+  award(10,'录入错题');closeM('m-capture');save();render();
+};
+document.getElementById('cancelCapture').onclick=()=>closeM('m-capture');
+
+/* ========== OCR / AI 适配器（可替换后端） ========== */
+async function callOCR(base64){
+  const s=state.settings;
+  if(s.ocr==='demo'){
+    await wait(900);
+    return '【演示识别结果】解方程：3x + 5 = 2x - 7。学生手写：x = 2。试卷还写有：解一元一次方程，移项合并同类项。';
+  }
+  if(s.ocr==='cloudbase'){
+    const r=await cloudFn('ocrRecognize',{image:base64});return r.text||JSON.stringify(r);
+  }
+  if(s.ocr==='custom'){
+    if(!s.ocrUrl)throw new Error('未配置 OCR 接口地址');
+    const r=await fetch(s.ocrUrl,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({image:base64})});
+    if(!r.ok)throw new Error('OCR 服务返回 '+r.status);
+    const j=await r.json();return j.text||j.result||JSON.stringify(j);
+  }
+  throw new Error('未知 OCR 模式');
+}
+const AI_PROMPT=`你是初一（七年级）各科错题分析助教。请分析 OCR 识别出的试卷文字与手写答案，严格只输出一个 JSON 对象，字段如下：
+{"subject":"语文|数学|英语|物理","question":"原题","student":"学生作答","ref":"参考答案（正确解题过程）","knowledge":"涉及知识点，精准到初一考点，如：一元一次方程移项 / 一般现在时句型","type":"概念不清|计算粗心|审题漏条件|步骤不规范|不会审题（五选一）","sug":"简短可执行的学习建议，不要空话","practice":[{"q":"同考点难度相近的新题","a":"答案"},...2到3题]}
+OCR 文本：`;
+async function callAI(text){
+  const s=state.settings;
+  if(s.ai==='demo'){await wait(900);return demoParse(text);}
+  if(s.ai==='cloudbase'){
+    const r=await cloudFn('analyzeMistake',{text,prompt:AI_PROMPT});return normalizeAI(r);
+  }
+  if(s.ai==='custom'){
+    if(!s.aiUrl)throw new Error('未配置 AI 接口地址');
+    const r=await fetch(s.aiUrl,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prompt:AI_PROMPT,text})});
+    if(!r.ok)throw new Error('AI 服务返回 '+r.status);
+    return normalizeAI(await r.json());
+  }
+  throw new Error('未知 AI 模式');
+}
+function normalizeAI(j){
+  const d=j.data||j.result||j;
+  if(typeof d==='string'){try{return JSON.parse(d.replace(/```json|```/g,''));}catch(e){throw new Error('AI 返回格式无法解析');}}
+  return d;
+}
+function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+function demoParse(text){
+  // 演示用：根据关键词给出结构化示例（真实环境由后端 AI 返回）
+  if(/英语|English|一般现在时|单词/.test(text))return {
+    subject:'英语',question:'He ___ (go) to school by bike every day.',student:'going',
+    ref:'goes。一般现在时，主语 he 为第三人称单数，动词加 -s/es。',
+    knowledge:'一般现在时第三人称单数动词变化',type:'概念不清',
+    sug:'记牢：一般现在时主语为三单时，动词加 s/es；每天做 5 道三单变形小题并大声读出句子。',
+    practice:[{q:'She ___ (like) apples. 填空','a':'likes'},{q:'They ___ (play) football on Sundays. 填空','a':'play'}]
+  };
+  if(/古诗|春望|默写|语文/.test(text))return {
+    subject:'语文',question:'默写《春望》中表达忧国伤时的句子。',student:'国破山河在，城春草木深',
+    ref:'感时花溅泪，恨别鸟惊心。（或"国破山河在，城春草木深"需结合题干要求）',
+    knowledge:'古诗文默写·《春望》理解性默写',type:'审题漏条件',
+    sug:'默写题先圈出题干关键词（如"忧国伤时"），再定位对应诗句；把易错字"溅、恨"各抄写 3 遍。',
+    practice:[{q:'《春望》中写战火连续不断、家书珍贵的句子？','a':'烽火连三月，家书抵万金'},{q:'"感时花溅泪"的下一句是？','a':'恨别鸟惊心'}]
+  };
+  return {
+    subject:'数学',question:'解方程：3x + 5 = 2x - 7',student:'x = 2',
+    ref:'移项得 3x - 2x = -7 - 5，合并同类项得 x = -12。',
+    knowledge:'一元一次方程移项与合并同类项',type:'计算粗心',
+    sug:'移项一定要变号；解完把 x 代回原方程验算。今天额外练 5 道移项题，每题写完立刻验算。',
+    practice:[{q:'解方程：5x - 3 = 2x + 9','a':'x = 4'},{q:'解方程：4x + 7 = 3x - 2','a':'x = -9'},{q:'解方程：2(x-1)=x+3','a':'x = 5'}]
+  };
+}
+
+/* ---------- 复习完成（错题/背诵共用） ---------- */
+function reviewDone(type,id){
+  let item;
+  if(type==='mis')item=state.mistakes.find(x=>x.id===id);
+  else item=state.recites.find(x=>x.id===id);
+  if(!item)return;
+  item.stage=(item.stage||0)+1;
+  const iv=EBB[Math.min(item.stage,EBB.length-1)];
+  item.nextReview=addDays(todayStr(),iv);
+  if(type==='rec'){state.reciteDone[id]=state.reciteDone[id]||[];state.reciteDone[id].push(todayStr());}
+  award(5,type==='mis'?'错题复习':'背诵打卡');render();
+}
+
+/* ============================================================
+   背诵打卡
+   ============================================================ */
+function renderRecite(){
+  const box=document.getElementById('reciteList'),t=todayStr();
+  const list=state.recites.slice().sort((a,b)=>(a.mastered-b.mastered)||((a.nextReview||'9')<(b.nextReview||'9')?-1:1));
+  box.innerHTML=list.length?list.map(r=>{
+    const isDue=!r.mastered&&r.nextReview<=t;
+    const cnt=(state.reciteDone[r.id]||[]).length;
+    return `<div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div><span class="tag ${subColor(r.subject)}">${r.subject}</span> <b>${esc(r.title)}</b></div>
+        ${r.mastered?'<span class="tag">✅ 已掌握</span>':isDue?'<span class="tag rose">今日该复习</span>':''}
+      </div>
+      <div class="mini" style="margin:8px 0">第 ${(r.stage||0)+1} 轮 · 已打卡 ${cnt} 次 · 下次 ${r.mastered?'—':r.nextReview}</div>
+      <div class="row">
+        ${!r.mastered?`<button class="btn btn-p btn-sm" data-rdone="${r.id}">✅ 打卡完成</button>
+          <button class="btn btn-g btn-sm" data-rmaster="${r.id}">已掌握</button>`:''}
+        <button class="btn btn-d btn-sm" data-rdel="${r.id}">删除</button>
+      </div></div>`;
+  }).join(''):`<div class="card"><div class="empty"><span class="e">📖</span>加入要背诵的内容，按艾宾浩斯节奏提醒你～</div></div>`;
+  box.querySelectorAll('[data-rdone]').forEach(b=>b.onclick=()=>reviewDone('rec',b.dataset.rdone));
+  box.querySelectorAll('[data-rmaster]').forEach(b=>b.onclick=()=>{
+    const r=state.recites.find(x=>x.id===b.dataset.rmaster);r.mastered=true;save();render();});
+  box.querySelectorAll('[data-rdel]').forEach(b=>b.onclick=()=>{
+    state.recites=state.recites.filter(x=>x.id!==b.dataset.rdel);save();render();});
+}
+document.getElementById('addRec').onclick=()=>{
+  const inp=document.getElementById('recTitle'),v=inp.value.trim();
+  if(!v)return toast('请输入背诵内容');
+  state.recites.push({id:uid(),title:v,subject:document.getElementById('recSub').value,
+    date:todayStr(),stage:0,nextReview:todayStr(),mastered:false});
+  inp.value='';save();render();toast('已加入背诵计划');
+};
+
+/* ============================================================
+   统计复盘
+   ============================================================ */
+function renderStats(){
+  const days=[];for(let i=6;i>=0;i--)days.push(addDays(todayStr(),-i));
+  const vals=days.map(d=>state.pomodoros.filter(x=>x.date===d).reduce((a,b)=>a+b.minutes,0));
+  const max=Math.max(25,...vals);
+  document.getElementById('focusChart').innerHTML=days.map((d,i)=>`
+    <div class="col"><div class="bx" style="height:${Math.max(2,vals[i]/max*96)}px"></div>
+      <div class="lb">${d.slice(5).replace('-','/')}</div></div>`).join('');
+  document.getElementById('focusTotal').textContent=`近 7 天共专注 ${vals.reduce((a,b)=>a+b,0)} 分钟`;
+
+  const tc={};state.mistakes.forEach(m=>tc[m.type]=(tc[m.type]||0)+1);
+  const tmax=Math.max(1,...Object.values(tc));
+  document.getElementById('typeStat').innerHTML=TYPES.filter(t=>tc[t]).sort((a,b)=>tc[b]-tc[a]).map(t=>`
+    <div style="margin-bottom:9px"><div class="mini" style="margin-bottom:3px">${t} · ${tc[t]} 题</div>
+      <div class="bar"><i style="width:${tc[t]/tmax*100}%"></i><span>${Math.round(tc[t]/state.mistakes.length*100)}%</span></div></div>`).join('')
+    ||'<div class="mini">暂无错题数据</div>';
+
+  const kc={};state.mistakes.filter(m=>m.knowledge).forEach(m=>kc[m.knowledge]=(kc[m.knowledge]||0)+1);
+  const ktop=Object.entries(kc).sort((a,b)=>b[1]-a[1]).slice(0,5),kmax=Math.max(1,...ktop.map(x=>x[1]));
+  document.getElementById('kpStat').innerHTML=ktop.map(([k,n])=>`
+    <div style="margin-bottom:9px"><div class="mini" style="margin-bottom:3px">${esc(k)} · ${n} 次</div>
+      <div class="bar"><i style="width:${n/kmax*100}%;background:var(--rose)"></i></div></div>`).join('')
+    ||'<div class="mini">暂无知识点记录</div>';
+
+  const topType=Object.entries(tc).sort((a,b)=>b[1]-a[1])[0];
+  const typeAdvice={
+    '概念不清':'回归课本，把本周错题涉及的定义、公式抄一遍，再用自己的话复述，最后做 3 道同类型基础题巩固。',
+    '计算粗心':'每天 10 分钟限时计算训练；每题算完必须代回验算，养成"写完必查"的习惯。',
+    '审题漏条件':'读题时用笔圈出关键词和已知条件，写下一步前先确认"题目到底要求什么"。',
+    '步骤不规范':'对照标准答案整理这类题的解题步骤模板，照着模板完整书写 3 遍，考试按步骤给分。',
+    '不会审题':'先把题目用自己的话复述一遍，列出已知与所求，再动笔；每天精做 2 道综合题练拆解。'
+  };
+  let advice=[];
+  if(topType)advice.push(`📌 本周最突出的错因是「${topType[0]}」（${topType[1]} 题）。${typeAdvice[topType[0]]}`);
+  if(ktop.length)advice.push(`🎯 薄弱知识点「${ktop[0][0]}」出现 ${ktop[0][1]} 次，建议明天安排 15 分钟专项复习并重做对应错题。`);
+  const wk=vals.reduce((a,b)=>a+b,0);
+  advice.push(wk>=100?`🍅 本周专注 ${wk} 分钟，节奏不错！继续保持每天 1～2 个番茄钟。`:`🍅 本周专注 ${wk} 分钟偏少，建议每天固定 1 个 25 分钟番茄钟，先从小目标开始。`);
+  const dueN=due(state.mistakes)+due(state.recites);
+  advice.push(dueN?`⏰ 还有 ${dueN} 项到期的错题/背诵未复习，今天优先清掉它们，记忆效果最好。`:'✅ 到期复习任务已清空，很棒！');
+  document.getElementById('advice').innerHTML=advice.map(a=>`<div style="margin-bottom:9px">${a}</div>`).join('');
+}
+
+/* ============================================================
+   番茄钟
+   ============================================================ */
+document.getElementById('quickPomo').onclick=()=>{resetPomo();openM('m-pomo');};
+function fmt(s){return p2(Math.floor(s/60))+':'+p2(s%60);}
+function renderPomo(){document.getElementById('timerTx').textContent=fmt(pomo.left);}
+function resetPomo(){clearInterval(pomo.timer);pomo.timer=null;pomo.running=false;pomo.left=25*60;pomo.base=25*60;renderPomo();
+  document.getElementById('pomoStart').textContent='▶ 开始';}
+document.getElementById('pomoStart').onclick=()=>{
+  if(pomo.running){
+    // 暂停：把当前剩余固化为新的基准
+    pomo.base=pomo.left;clearInterval(pomo.timer);pomo.timer=null;pomo.running=false;
+    document.getElementById('pomoStart').textContent='▶ 继续';return;
+  }
+  if(pomo.left<=0)pomo.left=pomo.base=25*60;
+  pomo.running=true;pomo.startAt=Date.now();document.getElementById('pomoStart').textContent='⏸ 暂停';
+  pomo.timer=setInterval(()=>{
+    const elapsed=Math.floor((Date.now()-pomo.startAt)/1000);
+    pomo.left=Math.max(0,pomo.base-elapsed);renderPomo();
+    if(pomo.left<=0){finishPomo();}
+  },500);
+};
+document.getElementById('pomoReset').onclick=resetPomo;
+document.getElementById('pomoFinish').onclick=()=>{
+  const mins=Math.round((pomo.base-pomo.left)/60);
+  if(mins<1)return toast('专注不足 1 分钟，再坚持一下～');
+  recordPomo(mins);resetPomo();closeM('m-pomo');
+};
+function finishPomo(){clearInterval(pomo.timer);pomo.running=false;recordPomo(25);resetPomo();closeM('m-pomo');toast('番茄钟完成！休息一下吧 🌿');}
+function recordPomo(mins){state.pomodoros.push({date:todayStr(),minutes:mins});award(10,'专注完成');}
+
+/* ============================================================
+   设置 / CloudBase 云同步（预留接口）
+   ============================================================ */
+function fillSettings(){
+  const s=state.settings;
+  document.getElementById('setOcr').value=s.ocr;document.getElementById('setAi').value=s.ai;
+  document.getElementById('setOcrUrl').value=s.ocrUrl;document.getElementById('setAiUrl').value=s.aiUrl;
+  document.getElementById('setEnv').value=s.env;document.getElementById('setAuto').checked=!!s.auto;
+}
+// 顶部 logo 点击进入设置
+document.querySelector('.logo').style.cursor='pointer';
+document.querySelector('.logo').onclick=()=>{fillSettings();openM('m-set');};
+// 统计页底部入口
+document.getElementById('v-stats').insertAdjacentHTML('beforeend',
+  '<button class="btn btn-g btn-block" id="openSet">⚙️ 识别 / 云同步设置</button>');
+document.getElementById('openSet').onclick=()=>{fillSettings();openM('m-set');};
+document.getElementById('saveSet').onclick=()=>{
+  state.settings={ocr:document.getElementById('setOcr').value,ai:document.getElementById('setAi').value,
+    ocrUrl:document.getElementById('setOcrUrl').value.trim(),aiUrl:document.getElementById('setAiUrl').value.trim(),
+    env:document.getElementById('setEnv').value.trim(),auto:document.getElementById('setAuto').checked};
+  save();closeM('m-set');toast('设置已保存');
+};
+document.getElementById('syncUp').onclick=()=>cloudSync('up');
+document.getElementById('syncDown').onclick=()=>cloudSync('down');
+document.getElementById('clearData').onclick=()=>{
+  if(!confirm('确定清空所有本地数据？此操作不可恢复！'))return;
+  localStorage.removeItem(KEY);state=clone(DEFAULT);save();closeM('m-set');render();toast('已清空');
+};
+
+/* ----- CloudBase 调用封装：引入 cloudbase JS SDK 后即可启用 -----
+   <script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js"><\/script>
+   云函数约定：
+   - ocrRecognize({image}) -> { text }
+   - analyzeMistake({text,prompt}) -> 结构化 JSON
+   - syncData({action:'up'|'down',data}) -> up:{ok} / down:{data}
+------------------------------------------------------------- */
+async function cloudFn(name,data){
+  if(!window.cloudbase)throw new Error('未加载 CloudBase SDK，请在页面引入 SDK 后重试');
+  if(!state.settings.env)throw new Error('请先填写 CloudBase 环境 ID');
+  const app=window.cloudbase.init({env:state.settings.env});
+  const res=await app.callFunction({name,data});
+  return res.result;
+}
+async function cloudSync(action,silent){
+  try{
+    if(action==='up'){
+      await cloudFn('syncData',{action:'up',data:state});if(!silent)toast('⬆ 已上传到云端');
+    }else{
+      const r=await cloudFn('syncData',{action:'down'});
+      if(r&&r.data){state=Object.assign(clone(DEFAULT),r.data);save();render();toast('⬇ 已从云端恢复');}
+      else toast('云端暂无数据');
+    }
+  }catch(e){if(!silent)toast('云同步失败：'+e.message);}
+}
+
+/* ============================================================
+   总分渲染 & 启动
+   ============================================================ */
+function renderPoints(){document.getElementById('pts').textContent=state.points;}
+function render(){renderPoints();renderHome();renderPlan();renderMistakes();renderRecite();renderStats();renderPomo();}
+render();
+</script>
+</body>
+</html>
